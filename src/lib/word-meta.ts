@@ -24,6 +24,54 @@ export const WORD_CATEGORY_LABELS: Record<WordCategoryId, string> = {
   other: "その他",
 };
 
+/** TOEIC 場面タグ（データ `tags` と対応） */
+export const SCENE_TAG_IDS = [
+  "office",
+  "meeting",
+  "hr",
+  "travel",
+  "dining",
+  "shopping",
+  "finance",
+  "manufacturing",
+  "it",
+  "marketing",
+  "facilities",
+  "healthcare",
+  "daily",
+] as const;
+
+export type SceneTagId = (typeof SCENE_TAG_IDS)[number];
+
+export const SCENE_TAG_LABELS: Record<SceneTagId, string> = {
+  office: "オフィス",
+  meeting: "会議",
+  hr: "人事",
+  travel: "出張・交通",
+  dining: "飲食",
+  shopping: "販売・接客",
+  finance: "財務・契約",
+  manufacturing: "製造・物流",
+  it: "IT",
+  marketing: "広告・広報",
+  facilities: "施設",
+  healthcare: "健康・安全",
+  daily: "生活・娯楽",
+};
+
+export function isSceneTagId(s: string): s is SceneTagId {
+  return (SCENE_TAG_IDS as readonly string[]).includes(s);
+}
+
+export function getSceneTags(w: ToeicWord): SceneTagId[] {
+  if (!w.tags?.length) return [];
+  return w.tags.filter(isSceneTagId);
+}
+
+export function isDailyWord(w: ToeicWord): boolean {
+  return getSceneTags(w).includes("daily");
+}
+
 /** 品詞ベースのカテゴリ（データにタグがなくても一覧・絞り込みに使う） */
 export function getWordCategoryId(w: ToeicWord): WordCategoryId {
   const p = w.partOfSpeech;
@@ -48,6 +96,7 @@ export function getWordDifficulty(w: ToeicWord): WordDifficulty {
   if (p === "prep" || p === "conj" || p === "adv" || p === "phr") {
     score = Math.min(3, score + 1);
   }
+  if (isDailyWord(w)) score = Math.min(score, 1);
   return score as WordDifficulty;
 }
 
@@ -68,4 +117,21 @@ export function filterWordsByDifficulty(
     return words;
   }
   return words.filter((w) => set.has(getWordDifficulty(w)));
+}
+
+/** 生活語を除く（本番対策トラック） */
+export function filterWordsByTrack(
+  words: ToeicWord[],
+  includeDailyVocab: boolean
+): ToeicWord[] {
+  if (includeDailyVocab) return words;
+  return words.filter((w) => !isDailyWord(w));
+}
+
+export function filterWordsByScene(
+  words: ToeicWord[],
+  scene: SceneTagId | "all"
+): ToeicWord[] {
+  if (scene === "all") return words;
+  return words.filter((w) => getSceneTags(w).includes(scene));
 }

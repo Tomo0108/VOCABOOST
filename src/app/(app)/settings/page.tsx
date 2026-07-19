@@ -296,7 +296,7 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <p className="text-sm font-medium leading-snug">出題する難易度</p>
             <p className="text-[11px] leading-relaxed text-muted-foreground">
-              レベルは複数選べます。未登録の語は語長・品詞から推定します。
+              レベルは複数選べます。データに難易度が無い語だけ語長・品詞から推定します。
             </p>
             {([1, 2, 3] as const).map((level) => (
               <div key={level} className="flex items-center justify-between gap-3">
@@ -312,6 +312,24 @@ export default function SettingsPage() {
                 />
               </div>
             ))}
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1 space-y-1">
+              <span className="text-sm font-medium leading-snug">生活・娯楽語も出題する</span>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                オフのときはビジネス場面の語を優先（本番対策トラック）。
+              </p>
+            </div>
+            <Switch
+              size="lg"
+              className="shrink-0"
+              checked={prefs?.includeDailyVocab ?? false}
+              disabled={prefs == null}
+              onCheckedChange={(checked) =>
+                void updatePrefs({ includeDailyVocab: Boolean(checked) })
+              }
+            />
           </div>
           <Separator />
           <div className="flex items-center justify-between gap-3">

@@ -5,7 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
 import type { ToeicWord } from "@/lib/vocab";
-import { difficultyLabel, getWordDifficulty } from "@/lib/word-meta";
+import {
+  difficultyLabel,
+  getSceneTags,
+  getWordDifficulty,
+  SCENE_TAG_LABELS,
+} from "@/lib/word-meta";
 import { PartOfSpeechDisplay } from "@/components/app/part-of-speech-display";
 import { Volume2 } from "lucide-react";
 
@@ -31,6 +36,7 @@ export function WordDetailPanel({
     word.partOfSpeech
   );
   const d = getWordDifficulty(word);
+  const scenes = getSceneTags(word);
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -38,11 +44,18 @@ export function WordDetailPanel({
         <Badge variant="outline" className="font-normal tabular-nums">
           難易度 {d}（{difficultyLabel(d)}）
         </Badge>
-        {word.tags && word.tags.length > 0 ? (
-          <span className="text-xs text-muted-foreground">
-            {word.tags.join(" · ")}
-          </span>
-        ) : null}
+        {scenes.map((tag) => (
+          <Badge
+            key={tag}
+            variant="secondary"
+            className={cn(
+              "font-normal",
+              tag === "daily" && "bg-amber-500/15 text-amber-900 dark:text-amber-100"
+            )}
+          >
+            {SCENE_TAG_LABELS[tag]}
+          </Badge>
+        ))}
       </div>
 
       <div className="flex items-start justify-between gap-3">
@@ -50,6 +63,11 @@ export function WordDetailPanel({
           <h1 className="break-words text-3xl font-semibold tracking-tight text-foreground">
             {word.term}
           </h1>
+          {word.ipa ? (
+            <p className="font-mono text-sm text-muted-foreground" lang="en">
+              /{word.ipa}/
+            </p>
+          ) : null}
           {word.partOfSpeech ? (
             <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="lg" />
           ) : (

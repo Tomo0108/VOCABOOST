@@ -1,6 +1,8 @@
 import { getStored, setStored } from "@/lib/storage";
 import { applyRating, initialSrsState, type Rating, type SrsState } from "@/lib/srs";
 import { getAllWords } from "@/lib/vocab";
+import { filterWordsByTrack } from "@/lib/word-meta";
+import { getPreferences } from "@/lib/preferences";
 
 export type WordProgress = Record<string, SrsState>;
 
@@ -12,13 +14,16 @@ export async function getProgress(): Promise<WordProgress> {
 
 /** ホームなど用の集計（クライアント側ストレージ前提） */
 export async function getHomeStats(now = Date.now()) {
-  const progress = await getProgress();
+  const [progress, prefs] = await Promise.all([getProgress(), getPreferences()]);
   const dueIds = await getDueWordIds(now);
-  const listLength = getAllWords().length;
+  const trackWords = filterWordsByTrack(getAllWords(), prefs.includeDailyVocab);
+  const trackIds = new Set(trackWords.map((w) => w.id));
+  const dueInTrack = dueIds.filter((id) => trackIds.has(id));
+  const touchedInTrack = Object.keys(progress).filter((id) => trackIds.has(id));
   return {
-    dueCount: dueIds.length,
-    touchedCount: Object.keys(progress).length,
-    listWordCount: listLength,
+    dueCount: dueInTrack.length,
+    touchedCount: touchedInTrack.length,
+    listWordCount: trackWords.length,
   };
 }
 

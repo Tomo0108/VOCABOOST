@@ -21,6 +21,11 @@ export type AppPreferences = {
   showPartOfSpeechInQuestion: boolean;
   /** 出題する難易度（1=やさしい … 3=むずかしい）。未指定の語は語長・品詞から推定 */
   difficultyLevels: WordDifficulty[];
+  /**
+   * 生活・娯楽寄りの語（tags に daily）も出題する。
+   * 既定はオフ＝ビジネス／本番対策トラックのみ。
+   */
+  includeDailyVocab: boolean;
 };
 
 const DEFAULTS: AppPreferences = {
@@ -30,6 +35,7 @@ const DEFAULTS: AppPreferences = {
   autoSpeakEnglish: false,
   showPartOfSpeechInQuestion: true,
   difficultyLevels: [1, 2, 3],
+  includeDailyVocab: false,
 };
 
 function normalizeDifficultyLevels(raw: unknown): WordDifficulty[] {
@@ -48,7 +54,8 @@ function normalizePreferences(raw: Partial<AppPreferences>): AppPreferences {
       ? raw.colorPreset
       : DEFAULT_COLOR_PRESET_ID;
   const difficultyLevels = normalizeDifficultyLevels(raw.difficultyLevels);
-  return { ...DEFAULTS, ...raw, colorPreset, difficultyLevels };
+  const includeDailyVocab = Boolean(raw.includeDailyVocab);
+  return { ...DEFAULTS, ...raw, colorPreset, difficultyLevels, includeDailyVocab };
 }
 
 export async function getPreferences(): Promise<AppPreferences> {

@@ -67,6 +67,7 @@ import { recordSolved } from "@/lib/activity";
 import {
   difficultyLabel,
   filterWordsByDifficulty,
+  filterWordsByTrack,
   getWordDifficulty,
   type WordDifficulty,
 } from "@/lib/word-meta";
@@ -109,9 +110,13 @@ async function loadSessionWords(
   n: number,
   offset: number,
   mixSeed: string | null,
-  difficultyLevels: WordDifficulty[]
+  difficultyLevels: WordDifficulty[],
+  includeDailyVocab: boolean
 ): Promise<ToeicWord[]> {
-  const all = filterWordsByDifficulty(getAllWords(), difficultyLevels);
+  const all = filterWordsByDifficulty(
+    filterWordsByTrack(getAllWords(), includeDailyVocab),
+    difficultyLevels
+  );
   if (mode === "review") {
     const [progress, ids] = await Promise.all([getProgress(), getDueWordIds()]);
     const map = new Map(all.map((w) => [w.id, w]));
@@ -432,10 +437,12 @@ export function StudySessionClient() {
       const prefs = await getPreferences();
       const parsedDiff = parseDifficultyQueryParam(params);
       const difficultyLevels = parsedDiff ?? prefs.difficultyLevels;
+      const includeDailyVocab = prefs.includeDailyVocab;
       const fromUrl = parsedDiff != null;
       if (!cancelled) {
         setDifficultyFromUrl(fromUrl);
         setSessionLevels(difficultyLevels);
+        setPrefs(prefs);
       }
 
       let mixSeed: string | null = null;
@@ -456,7 +463,14 @@ export function StudySessionClient() {
         if (!cancelled) setMixSeedState(null);
       }
 
-      const w = await loadSessionWords(mode, n, offset, mixSeed, difficultyLevels);
+      const w = await loadSessionWords(
+        mode,
+        n,
+        offset,
+        mixSeed,
+        difficultyLevels,
+        includeDailyVocab
+      );
       if (!cancelled) {
         setWords(w);
         setLoading(false);
@@ -491,8 +505,12 @@ export function StudySessionClient() {
   const inQuiz =
     !loading && words.length > 0 && idx < words.length;
   const totalWords = useMemo(
-    () => filterWordsByDifficulty(getAllWords(), sessionLevels).length,
-    [sessionLevels]
+    () =>
+      filterWordsByDifficulty(
+        filterWordsByTrack(getAllWords(), prefs?.includeDailyVocab ?? false),
+        sessionLevels
+      ).length,
+    [sessionLevels, prefs?.includeDailyVocab]
   );
   const percent = Math.round(
     (Math.min(idx, words.length) / Math.max(words.length, 1)) * 100
@@ -505,7 +523,10 @@ export function StudySessionClient() {
       const progress = await getProgress();
       if (cancelled) return;
       const unseen = filterWordsByDifficulty(
-        getAllWords().filter((w) => !progress[w.id]),
+        filterWordsByTrack(
+          getAllWords().filter((w) => !progress[w.id]),
+          prefs?.includeDailyVocab ?? false
+        ),
         sessionLevels
       );
       setMoreNew(unseen.length > 0);
@@ -513,7 +534,7 @@ export function StudySessionClient() {
     return () => {
       cancelled = true;
     };
-  }, [done, mode, sessionLevels]);
+  }, [done, mode, sessionLevels, prefs?.includeDailyVocab]);
 
   useEffect(() => {
     if (!done || mode !== "review") return;
