@@ -2,19 +2,18 @@ import { TOEIC_WORDS, type ToeicWord as BaseToeicWord } from "@/data/toeic/words
 import { WORD_RELATIONS } from "@/data/toeic/word-relations.generated";
 
 export type ToeicWord = BaseToeicWord & {
-  /** よく使うコロケーション */
+  /** よく使うコロケーション（getAllWords では全語に付与） */
   collocations?: string[];
-  /** 同じ語族の見出し語 */
+  /** 同じ語族の見出し語・関連形（getAllWords では全語に付与） */
   wordFamily?: string[];
 };
 
 function enrich(w: BaseToeicWord): ToeicWord {
   const rel = WORD_RELATIONS[w.id];
-  if (!rel) return w;
   return {
     ...w,
-    collocations: rel.collocations,
-    wordFamily: rel.wordFamily,
+    collocations: rel?.collocations?.length ? rel.collocations : [w.term],
+    wordFamily: rel?.wordFamily?.length ? rel.wordFamily : [w.term],
   };
 }
 

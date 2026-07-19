@@ -13,9 +13,7 @@ export function WordRelationsBlock({
   className?: string;
 }) {
   const collocations = word.collocations?.filter(Boolean) ?? [];
-  const family = (word.wordFamily ?? []).filter(
-    (t) => t.toLowerCase() !== word.term.toLowerCase()
-  );
+  const family = word.wordFamily?.filter(Boolean) ?? [];
 
   if (collocations.length === 0 && family.length === 0) return null;
 
@@ -43,7 +41,19 @@ export function WordRelationsBlock({
           <p className="text-xs font-medium text-muted-foreground">語族</p>
           <div className="flex flex-wrap gap-1.5">
             {family.map((term) => {
-              const related = getWordByTerm(term);
+              const isSelf = term.toLowerCase() === word.term.toLowerCase();
+              const related = isSelf ? null : getWordByTerm(term);
+              if (isSelf) {
+                return (
+                  <span
+                    key={term}
+                    className="rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
+                    aria-current="true"
+                  >
+                    {term}
+                  </span>
+                );
+              }
               if (related) {
                 return (
                   <Link
@@ -61,7 +71,8 @@ export function WordRelationsBlock({
               return (
                 <span
                   key={term}
-                  className="rounded-full border border-border/50 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground"
+                  title="未収録の関連語"
+                  className="rounded-full border border-dashed border-border/60 bg-muted/15 px-2.5 py-1 text-xs text-muted-foreground"
                 >
                   {term}
                 </span>
