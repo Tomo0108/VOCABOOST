@@ -73,7 +73,6 @@ import {
   setRetryQueue,
 } from "@/lib/mistakes";
 import { speakEnglish } from "@/lib/speak";
-import { WordRelationsBlock } from "@/components/app/word-relations-block";
 import {
   difficultyLabel,
   filterWordsByDifficulty,
@@ -307,8 +306,6 @@ function WordAnswerExplainer({
       ) : (
         <p className="text-sm text-muted-foreground">この単語には例文が登録されていません。</p>
       )}
-
-      <WordRelationsBlock word={word} />
     </div>
   );
 }

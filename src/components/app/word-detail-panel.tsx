@@ -12,7 +12,6 @@ import {
   getWordDifficulty,
 } from "@/lib/word-meta";
 import { PartOfSpeechDisplay } from "@/components/app/part-of-speech-display";
-import { WordRelationsBlock } from "@/components/app/word-relations-block";
 import { speakEnglish } from "@/lib/speak";
 import { Volume2 } from "lucide-react";
 
@@ -84,8 +83,6 @@ export function WordDetailPanel({
         <p className="text-xs font-medium text-muted-foreground">和訳</p>
         <p className="font-medium text-foreground">{correctMeaning}</p>
       </div>
-
-      <WordRelationsBlock word={word} />
 
       {word.exampleEn ? (
         <div className="space-y-2">
