@@ -1175,7 +1175,7 @@ const lines = [
   w("wrinkle","wrinkle","しわ","n","The packaging must be smooth with no wrinkles.","梱包はしわなく滑らかでなければならない。"),
   w("wristwatch","wristwatch","腕時計","n","He received a wristwatch as a gift for his ten-year anniversary.","彼は10周年記念に腕時計をプレゼントとして受け取った。"),
   w("yearly","yearly","毎年の","adj","A yearly performance review is scheduled for December.","毎年の業績評価は12月に予定されている。"),
-  w("yen","yen","円（通貨）","n","The invoice amount is listed in Japanese yen.","請求書の金額は日本円で記載されている。"),
+  w("yen","yen","円","n","The invoice amount is listed in Japanese yen.","請求書の金額は日本円で記載されている。"),
   w("yoga","yoga","ヨガ","n","The company offers weekly yoga classes in the wellness room.","会社はウェルネスルームで毎週ヨガ教室を提供している。"),
   w("zoo","zoo","動物園","n","The company sponsored a children's event at the local zoo.","会社は地元の動物園での子供イベントを後援した。"),
 ];
