@@ -14,10 +14,10 @@ import {
 import { PartOfSpeechDisplay } from "@/components/app/part-of-speech-display";
 import { Volume2 } from "lucide-react";
 
-function speakEnglish(term: string) {
+function speakEnglish(text: string) {
   if (typeof window === "undefined" || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(term);
+  const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
   window.speechSynthesis.speak(u);
 }
@@ -93,7 +93,20 @@ export function WordDetailPanel({
 
       {word.exampleEn ? (
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">例文（英語）</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-medium text-muted-foreground">例文（英語）</p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 rounded-lg px-2 text-xs"
+              aria-label="例文を読み上げ"
+              onClick={() => speakEnglish(word.exampleEn!)}
+            >
+              <Volume2 className="mr-1 h-3.5 w-3.5" aria-hidden />
+              例文を聞く
+            </Button>
+          </div>
           <p className="text-sm font-medium leading-relaxed text-foreground">
             {ex.found ? (
               <>

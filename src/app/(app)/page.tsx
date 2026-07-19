@@ -9,8 +9,9 @@ import {
   getSessionCheckpoint,
   type SessionCheckpoint,
 } from "@/lib/session-checkpoint";
+import { countTodaysMistakes } from "@/lib/mistakes";
 import { AppWordmark } from "@/components/app/wordmark";
-import { ArrowRight, Clock, Play, Sparkles } from "lucide-react";
+import { ArrowRight, Clock, Play, RotateCcw, Sparkles } from "lucide-react";
 
 function StatFigure({
   loading,
@@ -38,6 +39,7 @@ export default function Home() {
   const [due, setDue] = useState<number | null>(null);
   const [touched, setTouched] = useState<number | null>(null);
   const [total, setTotal] = useState<number | null>(null);
+  const [todayMistakes, setTodayMistakes] = useState(0);
   const [statsLoading, setStatsLoading] = useState(true);
   const [resume, setResume] = useState<SessionCheckpoint | null>(null);
 
@@ -59,11 +61,12 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const s = await getHomeStats();
+      const [s, mistakes] = await Promise.all([getHomeStats(), countTodaysMistakes()]);
       if (!cancelled) {
         setDue(s.dueCount);
         setTouched(s.touchedCount);
         setTotal(s.listWordCount);
+        setTodayMistakes(mistakes);
         setStatsLoading(false);
       }
     })();
@@ -154,6 +157,18 @@ export default function Home() {
                   ) : null}
                   {primaryIsReview ? "新規10単語へ" : "新規10単語を始める"}
                 </Link>
+                {!statsLoading && todayMistakes > 0 ? (
+                  <Link
+                    href={`/study/session?mode=mistakes&n=${Math.min(todayMistakes, 30)}`}
+                    className={cn(
+                      focusRingHeroGhost,
+                      "inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-2xl border border-destructive/35 bg-destructive/5 px-5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+                    )}
+                  >
+                    <RotateCcw className="h-4 w-4 opacity-90" aria-hidden />
+                    今日の間違い {todayMistakes} 語を復習
+                  </Link>
+                ) : null}
               </div>
             </div>
           </div>

@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
 import { HelpHint, HelpSection } from "@/components/app/help-hint";
-import { BookOpen, Sparkles } from "lucide-react";
+import { BookOpen, RotateCcw, Sparkles } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getActivityBuckets, type ActivityBuckets } from "@/lib/activity";
+import { countTodaysMistakes } from "@/lib/mistakes";
 
 /* ------------------------------------------------------------------ */
 /*  Constants & helpers                                                */
@@ -277,13 +278,17 @@ export default function StudyPage() {
   const [buckets, setBuckets] = useState<ActivityBuckets>({});
   const [selected, setSelected] = useState<CellInfo | null>(null);
   const [activeTab, setActiveTab] = useState<"week" | "month" | "year">("week");
+  const [todayMistakes, setTodayMistakes] = useState(0);
   const learningRecordCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const b = await getActivityBuckets();
-      if (!cancelled) setBuckets(b);
+      const [b, m] = await Promise.all([getActivityBuckets(), countTodaysMistakes()]);
+      if (!cancelled) {
+        setBuckets(b);
+        setTodayMistakes(m);
+      }
     })();
     return () => { cancelled = true; };
   }, []);
@@ -396,6 +401,19 @@ export default function StudyPage() {
           >
             和→英 10単語
           </Link>
+          {todayMistakes > 0 ? (
+            <Link
+              href={`/study/session?mode=mistakes&n=${Math.min(todayMistakes, 30)}`}
+              className={cn(
+                buttonVariants({ size: "lg", variant: "outline" }),
+                focusRingLink,
+                "col-span-2 h-14 rounded-2xl border-destructive/40 text-destructive shadow-sm transition-colors hover:bg-destructive/5"
+              )}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" aria-hidden />
+              今日の間違い {todayMistakes} 語
+            </Link>
+          ) : null}
         </CardContent>
       </Card>
 

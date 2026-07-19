@@ -66,6 +66,22 @@ export function orderSessionCandidates(
 export type SessionResultLine = { wasCorrect: boolean };
 
 /**
+ * 不正解語を少し後に再挿入する（定着のための短期反復）。
+ * afterIndex は「いま終わった問題の index」。
+ */
+export function insertRequeueAfter(
+  words: ToeicWord[],
+  afterIndex: number,
+  word: ToeicWord,
+  gap = 2
+): ToeicWord[] {
+  const insertAt = Math.min(words.length, Math.max(afterIndex + 1, afterIndex + 1 + gap));
+  const next = [...words];
+  next.splice(insertAt, 0, word);
+  return next;
+}
+
+/**
  * 直近の正答率が高いとき、未出題の末尾を難易度重みで再シャッフル（チェックポイントの wordIds と整合）
  */
 export function reshuffleRemainingForDifficulty(

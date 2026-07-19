@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { getAllWords, getWordById, type ToeicWord } from "@/lib/vocab";
 import { getDueWordIds, getProgress, rateWord } from "@/lib/progress";
 import {
+  insertRequeueAfter,
   orderSessionCandidates,
   reshuffleRemainingForDifficulty,
 } from "@/lib/session-order";
@@ -65,14 +66,24 @@ import {
 } from "@/lib/quiz-term";
 import { recordSolved } from "@/lib/activity";
 import {
+  clearRetryQueue,
+  getRetryQueue,
+  getTodaysMistakeWordIds,
+  recordMistake,
+  setRetryQueue,
+} from "@/lib/mistakes";
+import {
   difficultyLabel,
   filterWordsByDifficulty,
   filterWordsByTrack,
+  getSceneTags,
   getWordDifficulty,
+  SCENE_TAG_LABELS,
   type WordDifficulty,
 } from "@/lib/word-meta";
 
-type Mode = "new" | "mix" | "review";
+type Mode = "new" | "mix" | "review" | "mistakes" | "retry";
+const MAX_REQUEUE_PER_WORD = 2;
 
 /** `diff=1` / `diff=1,3` など。無効・未指定は null（設定に従う） */
 function parseDifficultyQueryParam(sp: URLSearchParams): WordDifficulty[] | null {
@@ -117,12 +128,33 @@ async function loadSessionWords(
     filterWordsByTrack(getAllWords(), includeDailyVocab),
     difficultyLevels
   );
+  const byId = new Map(all.map((w) => [w.id, w]));
+  // mistakes / retry は難易度フィルタを緩く（今日の誤答を確実に出す）
+  const allById = new Map(getAllWords().map((w) => [w.id, w]));
+
+  if (mode === "mistakes") {
+    const ids = await getTodaysMistakeWordIds();
+    const progress = await getProgress();
+    const list = ids
+      .map((id) => byId.get(id) ?? allById.get(id))
+      .filter((w): w is ToeicWord => Boolean(w))
+      .slice(0, n);
+    return orderSessionCandidates(list, progress);
+  }
+  if (mode === "retry") {
+    const ids = await getRetryQueue();
+    await clearRetryQueue();
+    const progress = await getProgress();
+    const list = ids
+      .map((id) => byId.get(id) ?? allById.get(id))
+      .filter((w): w is ToeicWord => Boolean(w));
+    return orderSessionCandidates(list, progress);
+  }
   if (mode === "review") {
     const [progress, ids] = await Promise.all([getProgress(), getDueWordIds()]);
-    const map = new Map(all.map((w) => [w.id, w]));
     const list = ids
       .slice(0, n)
-      .map((id) => map.get(id))
+      .map((id) => byId.get(id))
       .filter((w): w is ToeicWord => Boolean(w));
     return orderSessionCandidates(list, progress);
   }
@@ -243,7 +275,20 @@ function WordAnswerExplainer({
 
       {word.exampleEn ? (
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">例文（英語）</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-medium text-muted-foreground">例文（英語）</p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 rounded-lg px-2 text-xs"
+              aria-label="例文を読み上げ"
+              onClick={() => speakEnglish(word.exampleEn!)}
+            >
+              <Volume2 className="mr-1 h-3.5 w-3.5" aria-hidden />
+              例文を聞く
+            </Button>
+          </div>
           <p className="text-sm font-medium leading-relaxed text-foreground">
             {ex.found ? (
               <>
@@ -292,17 +337,24 @@ function AnswerReviewDetails({
         pickedMeaning={pickedMeaning}
         direction={direction}
       />
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="rounded-lg"
-        aria-label={`${word.term} を読み上げ`}
-        onClick={() => speakEnglish(word.term)}
-      >
-        <Volume2 className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-        発音
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        {word.ipa ? (
+          <p className="font-mono text-sm text-muted-foreground" lang="en">
+            /{word.ipa}/
+          </p>
+        ) : null}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="rounded-lg"
+          aria-label={`${word.term} を読み上げ`}
+          onClick={() => speakEnglish(word.term)}
+        >
+          <Volume2 className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+          発音
+        </Button>
+      </div>
     </div>
   );
 }
@@ -311,6 +363,8 @@ function FeedbackCard({
   word,
   pending,
   ratingBusy,
+  selectedRating,
+  onSelectRating,
   onConfirm,
   onSpeak,
   showPos,
@@ -319,22 +373,27 @@ function FeedbackCard({
   word: ToeicWord;
   pending: { wasCorrect: boolean; pickedMeaning: string };
   ratingBusy: boolean;
+  selectedRating: Rating;
+  onSelectRating: (r: Rating) => void;
   onConfirm: () => void;
   onSpeak: () => void;
   showPos: boolean;
   direction?: QuizDirection;
 }) {
+  const ratingOptions: { id: Rating; label: string }[] = pending.wasCorrect
+    ? [
+        { id: "hard", label: "むずかしい" },
+        { id: "good", label: "覚えた" },
+        { id: "easy", label: "かんたん" },
+      ]
+    : [
+        { id: "again", label: "もう一度" },
+        { id: "hard", label: "やや不安" },
+      ];
+
   return (
     <>
       <CardHeader className="space-y-3 pb-3">
-        <Button
-          type="button"
-          className="h-12 w-full rounded-xl font-medium"
-          disabled={ratingBusy}
-          onClick={onConfirm}
-        >
-          次の問題へ
-        </Button>
         <p className="sr-only" aria-live="polite" aria-atomic="true">
           {pending.wasCorrect ? "正解です" : "不正解です"}
         </p>
@@ -349,7 +408,7 @@ function FeedbackCard({
           {pending.wasCorrect ? "正解" : "不正解"}
         </div>
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 space-y-1">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               {showPos && word.partOfSpeech ? (
                 <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="md" />
@@ -360,6 +419,11 @@ function FeedbackCard({
                 {word.term}
               </CardTitle>
             </div>
+            {word.ipa ? (
+              <p className="font-mono text-sm text-muted-foreground" lang="en">
+                /{word.ipa}/
+              </p>
+            ) : null}
           </div>
           <Button
             type="button"
@@ -380,6 +444,36 @@ function FeedbackCard({
           pickedMeaning={pending.pickedMeaning}
           direction={direction}
         />
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">覚え具合</p>
+          <div
+            className={cn(
+              "grid gap-2",
+              ratingOptions.length === 2 ? "grid-cols-2" : "grid-cols-3"
+            )}
+          >
+            {ratingOptions.map((opt) => (
+              <Button
+                key={opt.id}
+                type="button"
+                variant={selectedRating === opt.id ? "default" : "outline"}
+                className="h-11 rounded-xl text-sm font-medium"
+                disabled={ratingBusy}
+                onClick={() => onSelectRating(opt.id)}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <Button
+          type="button"
+          className="h-12 w-full rounded-xl font-medium"
+          disabled={ratingBusy}
+          onClick={onConfirm}
+        >
+          次の問題へ
+        </Button>
       </CardContent>
     </>
   );
@@ -422,6 +516,7 @@ export function StudySessionClient() {
   const restoredRef = useRef(false);
   const autoSpokenForQuestionRef = useRef<string | null>(null);
   const advancingFeedbackRef = useRef(false);
+  const requeueCountsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -429,6 +524,8 @@ export function StudySessionClient() {
     setIdx(0);
     setSessionResults([]);
     setPendingFeedback(null);
+    setRatingCounts({ again: 0, hard: 0, good: 0, easy: 0 });
+    requeueCountsRef.current = {};
 
     void (async () => {
       const params = new URLSearchParams(
@@ -644,6 +741,9 @@ export function StudySessionClient() {
       await rateWord(current.id, rating, {
         compactSchedule: prefs?.compactSchedule ?? false,
       });
+      if (!wasCorrect) {
+        void recordMistake(current.id).catch(() => {});
+      }
       setRatingCounts((prev) => ({ ...prev, [rating]: prev[rating] + 1 }));
       const nextResults = [
         ...sessionResults,
@@ -652,7 +752,17 @@ export function StudySessionClient() {
       const nextIdx = idx + 1;
       setSessionResults(nextResults);
       setPendingFeedback(null);
-      setWords((w) => reshuffleRemainingForDifficulty(w, nextIdx, nextResults));
+
+      let nextWords = words;
+      if (!wasCorrect) {
+        const count = requeueCountsRef.current[current.id] ?? 0;
+        if (count < MAX_REQUEUE_PER_WORD) {
+          requeueCountsRef.current[current.id] = count + 1;
+          nextWords = insertRequeueAfter(words, idx, current, 2);
+        }
+      }
+      nextWords = reshuffleRemainingForDifficulty(nextWords, nextIdx, nextResults);
+      setWords(nextWords);
       setIdx(nextIdx);
       void recordSolved(1).catch(() => {});
     } catch {
@@ -668,6 +778,7 @@ export function StudySessionClient() {
     idx,
     sessionResults,
     quizDirection,
+    words,
   ]);
 
   const pickMeaning = useCallback(
@@ -688,6 +799,10 @@ export function StudySessionClient() {
     },
     [current, ratingBusy, pendingFeedback, quizDirection]
   );
+
+  const selectFeedbackRating = useCallback((rating: Rating) => {
+    setPendingFeedback((prev) => (prev ? { ...prev, rating } : prev));
+  }, []);
 
   const confirmFeedback = useCallback(() => {
     void applyRatingAndAdvance();
@@ -738,9 +853,17 @@ export function StudySessionClient() {
   }, [router]);
 
   const modeLabel =
-    mode === "review" ? "復習" : mode === "new" ? "新規" : "ミックス";
+    mode === "review"
+      ? "復習"
+      : mode === "new"
+        ? "新規"
+        : mode === "mistakes"
+          ? "今日の間違い"
+          : mode === "retry"
+            ? "間違い再テスト"
+            : "ミックス";
   const modeIcon =
-    mode === "review" ? (
+    mode === "review" || mode === "mistakes" || mode === "retry" ? (
       <RotateCcw className="h-5 w-5" />
     ) : mode === "new" ? (
       <Sparkles className="h-5 w-5" />
@@ -765,9 +888,30 @@ export function StudySessionClient() {
       ? "学習（和→英）"
       : mode === "review"
         ? "復習"
-        : mode === "new"
-          ? "学習（新規）"
-          : "学習（ミックス）";
+        : mode === "mistakes"
+          ? "今日の間違い"
+          : mode === "retry"
+            ? "間違い再テスト"
+            : mode === "new"
+              ? "学習（新規）"
+              : "学習（ミックス）";
+
+  const wrongInSession = useMemo(() => {
+    const ids: string[] = [];
+    const seen = new Set<string>();
+    for (const r of sessionResults) {
+      if (!r.wasCorrect && !seen.has(r.word.id)) {
+        seen.add(r.word.id);
+        ids.push(r.word.id);
+      }
+    }
+    return ids;
+  }, [sessionResults]);
+
+  const sceneLabels = useMemo(() => {
+    if (!current) return [] as string[];
+    return getSceneTags(current).map((t) => SCENE_TAG_LABELS[t]);
+  }, [current]);
 
   const showPosInQuestion = prefs?.showPartOfSpeechInQuestion ?? true;
 
@@ -778,7 +922,9 @@ export function StudySessionClient() {
           <p>和訳の意味に合う英単語を、4択から1つ選びます。</p>
         </HelpSection>
         <HelpSection title="解答後">
-          <p>正誤のあと、例文や補足の和訳を確認できます。</p>
+          <p>
+            正誤・発音記号・例文を確認し、覚え具合（もう一度／やや不安／覚えた／かんたん）を選んでから次へ進みます。間違えた語は少し後にもう一度出ます。
+          </p>
         </HelpSection>
       </>
     ) : (
@@ -788,7 +934,7 @@ export function StudySessionClient() {
         </HelpSection>
         <HelpSection title="解答後・セット終了後">
           <p>
-            各問のあとに正誤と例文を確認できます。セット終了後は「結果」画面の一覧から、内容をいつでも振り返れます。
+            覚え具合を選んで進みます。間違えた語はセッション内で再出題され、結果画面から「間違いだけ再テスト」もできます。
           </p>
         </HelpSection>
       </>
@@ -826,11 +972,15 @@ export function StudySessionClient() {
     const emptyMsg =
       mode === "review"
         ? "いま期限どおりの単語はありません。"
-        : mode === "new"
-          ? "未学習の単語が残っていません。"
-          : offset >= totalWords
-            ? "指定位置が単語リストの終端を超えています。"
-            : "この条件では単語が選べませんでした。";
+        : mode === "mistakes"
+          ? "今日間違えた単語はまだありません。"
+          : mode === "retry"
+            ? "再テストする単語がありません。"
+            : mode === "new"
+              ? "未学習の単語が残っていません。"
+              : offset >= totalWords
+                ? "指定位置が単語リストの終端を超えています。"
+                : "この条件では単語が選べませんでした。";
 
     return (
       <Screen
@@ -885,17 +1035,24 @@ export function StudySessionClient() {
             <div className="grid grid-cols-2 gap-2 text-center">
               <div className="rounded-xl border border-border/60 bg-background/80 px-2 py-2.5">
                 <p className="text-lg font-semibold tabular-nums text-primary">
-                  {ratingCounts.good}
+                  {sessionResults.filter((r) => r.wasCorrect).length}
                 </p>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">正解</p>
               </div>
               <div className="rounded-xl border border-border/60 bg-background/80 px-2 py-2.5">
                 <p className="text-lg font-semibold tabular-nums text-destructive">
-                  {ratingCounts.again}
+                  {sessionResults.filter((r) => !r.wasCorrect).length}
                 </p>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">不正解</p>
               </div>
             </div>
+            {(ratingCounts.hard > 0 || ratingCounts.easy > 0) && (
+              <p className="text-center text-[11px] text-muted-foreground">
+                評価内訳：もう一度 {ratingCounts.again} · むずかしい{" "}
+                {ratingCounts.hard} · 覚えた {ratingCounts.good} · かんたん{" "}
+                {ratingCounts.easy}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -949,6 +1106,31 @@ export function StudySessionClient() {
 
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardContent className="space-y-3 pt-6 text-sm">
+            {wrongInSession.length > 0 ? (
+              <button
+                type="button"
+                disabled={navPending}
+                onClick={() =>
+                  startNavTransition(() => {
+                    void (async () => {
+                      await setRetryQueue(wrongInSession);
+                      router.push(
+                        `/study/session?mode=retry&n=${wrongInSession.length}${dirQuery}${diffPreserveQuery}&_t=${Date.now()}`
+                      );
+                    })();
+                  })
+                }
+                className={cn(
+                  focusRingLink,
+                  "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-destructive/90 font-medium text-destructive-foreground",
+                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90 disabled:opacity-60"
+                )}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" aria-hidden />
+                間違い {wrongInSession.length} 語だけ再テスト
+              </button>
+            ) : null}
+
             {mixHasNext ? (
               <button
                 type="button"
@@ -1092,6 +1274,8 @@ export function StudySessionClient() {
             word={current}
             pending={pendingFeedback}
             ratingBusy={ratingBusy}
+            selectedRating={pendingFeedback.rating}
+            onSelectRating={selectFeedbackRating}
             onConfirm={confirmFeedback}
             onSpeak={() => speakEnglish(current.term)}
             showPos={showPosInQuestion}
@@ -1150,9 +1334,9 @@ export function StudySessionClient() {
                       </div>
                     </>
                   )}
-                  {current.tags && current.tags.length > 0 ? (
+                  {sceneLabels.length > 0 ? (
                     <p className="text-xs text-muted-foreground">
-                      {current.tags.join(" · ")}
+                      {sceneLabels.join(" · ")}
                     </p>
                   ) : null}
                 </div>
