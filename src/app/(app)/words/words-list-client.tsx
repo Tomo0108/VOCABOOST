@@ -230,11 +230,14 @@ export function WordsListClient() {
                       <p className="line-clamp-1 text-xs text-muted-foreground">
                         {w.meaningJa}
                       </p>
-                      {getSceneTagLabels(w)[0] ? (
-                        <p className="mt-0.5 text-[10px] text-muted-foreground">
-                          {getSceneTagLabels(w).join(" · ")}
-                        </p>
-                      ) : null}
+                      {(() => {
+                        const cases = getSceneTagLabels(w);
+                        return cases.length > 0 ? (
+                          <p className="mt-0.5 text-[10px] text-muted-foreground">
+                            {cases.join(" · ")}
+                          </p>
+                        ) : null;
+                      })()}
                     </div>
                     <Badge variant="outline" className="shrink-0 text-[10px] font-normal">
                       {WORD_CATEGORY_LABELS[getWordCategoryId(w)]}
