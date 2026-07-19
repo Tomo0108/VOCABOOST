@@ -26,6 +26,8 @@ export type AppPreferences = {
    * 既定はオフ＝ビジネス／本番対策トラックのみ。
    */
   includeDailyVocab: boolean;
+  /** 英語読み上げ速度（0.7 / 1 / 1.25 など） */
+  speechRate: number;
 };
 
 const DEFAULTS: AppPreferences = {
@@ -36,6 +38,7 @@ const DEFAULTS: AppPreferences = {
   showPartOfSpeechInQuestion: true,
   difficultyLevels: [1, 2, 3],
   includeDailyVocab: false,
+  speechRate: 1,
 };
 
 function normalizeDifficultyLevels(raw: unknown): WordDifficulty[] {
@@ -48,6 +51,12 @@ function normalizeDifficultyLevels(raw: unknown): WordDifficulty[] {
   return [...set].sort((a, b) => a - b);
 }
 
+function normalizeSpeechRate(raw: unknown): number {
+  const n = typeof raw === "number" ? raw : Number(raw);
+  if (!Number.isFinite(n)) return 1;
+  return Math.max(0.5, Math.min(1.5, Math.round(n * 100) / 100));
+}
+
 function normalizePreferences(raw: Partial<AppPreferences>): AppPreferences {
   const colorPreset =
     raw.colorPreset != null && isColorPresetId(raw.colorPreset)
@@ -55,7 +64,17 @@ function normalizePreferences(raw: Partial<AppPreferences>): AppPreferences {
       : DEFAULT_COLOR_PRESET_ID;
   const difficultyLevels = normalizeDifficultyLevels(raw.difficultyLevels);
   const includeDailyVocab = Boolean(raw.includeDailyVocab);
-  return { ...DEFAULTS, ...raw, colorPreset, difficultyLevels, includeDailyVocab };
+  const speechRate = normalizeSpeechRate(
+    raw.speechRate !== undefined ? raw.speechRate : DEFAULTS.speechRate
+  );
+  return {
+    ...DEFAULTS,
+    ...raw,
+    colorPreset,
+    difficultyLevels,
+    includeDailyVocab,
+    speechRate,
+  };
 }
 
 export async function getPreferences(): Promise<AppPreferences> {
@@ -73,4 +92,14 @@ export async function setPreferences(
     window.dispatchEvent(new Event("vocaboost:prefs-updated"));
   }
   return next;
+}
+
+export const SPEECH_RATE_PRESETS = [
+  { value: 0.75, label: "ゆっくり" },
+  { value: 1, label: "ふつう" },
+  { value: 1.25, label: "はやい" },
+] as const;
+
+export function isSpeechRatePreset(rate: number, preset: number): boolean {
+  return Math.abs(rate - preset) < 0.02;
 }

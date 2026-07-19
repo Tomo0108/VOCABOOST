@@ -7,8 +7,7 @@ import Link from "next/link";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
 import { getHomeStats, getProgress } from "@/lib/progress";
-import { getAllWords } from "@/lib/vocab";
-import { Clock, RotateCcw, Sparkles } from "lucide-react";
+import { Clock, NotebookPen, RotateCcw, Sparkles } from "lucide-react";
 
 type ScheduleGroup = {
   label: string;
@@ -124,6 +123,17 @@ export default function ReviewPage() {
               10単語を進める
             </Link>
           )}
+          <Link
+            href="/mistakes"
+            className={cn(
+              buttonVariants({ size: "lg", variant: "outline" }),
+              focusRingLink,
+              "h-12 w-full rounded-2xl shadow-sm transition-colors"
+            )}
+          >
+            <NotebookPen className="mr-2 h-4 w-4" aria-hidden />
+            間違いノート
+          </Link>
         </CardContent>
       </Card>
 

@@ -5,6 +5,14 @@ export type MistakeEntry = {
   at: number; // epoch ms
 };
 
+export type MistakeSummary = {
+  wordId: string;
+  count: number;
+  lastAt: number;
+  /** 今日の誤答回数 */
+  todayCount: number;
+};
+
 const MISTAKES_KEY = "vocaboost.mistakes.v1";
 const RETRY_KEY = "vocaboost.retry-queue.v1";
 
@@ -58,6 +66,47 @@ export async function countTodaysMistakes(now = Date.now()): Promise<number> {
   return (await getTodaysMistakeWordIds(now)).length;
 }
 
+/** 語ごとの集計（新しい誤答順） */
+export async function getMistakeSummaries(now = Date.now()): Promise<MistakeSummary[]> {
+  const dayStart = startOfLocalDay(now);
+  const list = await getMistakes();
+  const map = new Map<string, MistakeSummary>();
+  for (const e of list) {
+    const cur = map.get(e.wordId) ?? {
+      wordId: e.wordId,
+      count: 0,
+      lastAt: 0,
+      todayCount: 0,
+    };
+    cur.count += 1;
+    if (e.at > cur.lastAt) cur.lastAt = e.at;
+    if (e.at >= dayStart) cur.todayCount += 1;
+    map.set(e.wordId, cur);
+  }
+  return [...map.values()].sort((a, b) => b.lastAt - a.lastAt);
+}
+
+export async function clearTodaysMistakes(now = Date.now()): Promise<void> {
+  const dayStart = startOfLocalDay(now);
+  const list = await getMistakes();
+  await setStored(
+    MISTAKES_KEY,
+    list.filter((e) => e.at < dayStart)
+  );
+}
+
+export async function clearAllMistakes(): Promise<void> {
+  await setStored(MISTAKES_KEY, []);
+}
+
+export async function removeMistakeWord(wordId: string): Promise<void> {
+  const list = await getMistakes();
+  await setStored(
+    MISTAKES_KEY,
+    list.filter((e) => e.wordId !== wordId)
+  );
+}
+
 /** 結果画面「間違いだけ再テスト」用の一時キュー */
 export async function setRetryQueue(wordIds: string[]): Promise<void> {
   const uniq = [...new Set(wordIds.filter(Boolean))];
@@ -70,7 +119,6 @@ export async function getRetryQueue(): Promise<string[]> {
     null
   );
   if (!raw || !Array.isArray(raw.wordIds)) return [];
-  // 2時間以内のみ有効
   if (raw.updatedAt && Date.now() - raw.updatedAt > 2 * 60 * 60 * 1000) {
     return [];
   }

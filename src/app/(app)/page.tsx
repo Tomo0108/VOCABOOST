@@ -158,16 +158,27 @@ export default function Home() {
                   {primaryIsReview ? "新規10単語へ" : "新規10単語を始める"}
                 </Link>
                 {!statsLoading && todayMistakes > 0 ? (
-                  <Link
-                    href={`/study/session?mode=mistakes&n=${Math.min(todayMistakes, 30)}`}
-                    className={cn(
-                      focusRingHeroGhost,
-                      "inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-2xl border border-destructive/35 bg-destructive/5 px-5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
-                    )}
-                  >
-                    <RotateCcw className="h-4 w-4 opacity-90" aria-hidden />
-                    今日の間違い {todayMistakes} 語を復習
-                  </Link>
+                  <>
+                    <Link
+                      href={`/study/session?mode=mistakes&n=${Math.min(todayMistakes, 30)}`}
+                      className={cn(
+                        focusRingHeroGhost,
+                        "inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-2xl border border-destructive/35 bg-destructive/5 px-5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+                      )}
+                    >
+                      <RotateCcw className="h-4 w-4 opacity-90" aria-hidden />
+                      今日の間違い {todayMistakes} 語を復習
+                    </Link>
+                    <Link
+                      href="/mistakes"
+                      className={cn(
+                        focusRingLink,
+                        "text-center text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                      )}
+                    >
+                      間違いノートを見る
+                    </Link>
+                  </>
                 ) : null}
               </div>
             </div>

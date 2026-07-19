@@ -12,15 +12,9 @@ import {
   SCENE_TAG_LABELS,
 } from "@/lib/word-meta";
 import { PartOfSpeechDisplay } from "@/components/app/part-of-speech-display";
+import { WordRelationsBlock } from "@/components/app/word-relations-block";
+import { speakEnglish } from "@/lib/speak";
 import { Volume2 } from "lucide-react";
-
-function speakEnglish(text: string) {
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "en-US";
-  window.speechSynthesis.speak(u);
-}
 
 export function WordDetailPanel({
   word,
@@ -90,6 +84,8 @@ export function WordDetailPanel({
         <p className="text-xs font-medium text-muted-foreground">和訳</p>
         <p className="font-medium text-foreground">{correctMeaning}</p>
       </div>
+
+      <WordRelationsBlock word={word} />
 
       {word.exampleEn ? (
         <div className="space-y-2">

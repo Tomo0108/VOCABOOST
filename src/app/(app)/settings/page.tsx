@@ -10,8 +10,15 @@ import { Separator } from "@/components/ui/separator";
 import { Screen } from "@/components/app/screen";
 import { HelpHint, HelpSection } from "@/components/app/help-hint";
 import { cn, focusRingLink } from "@/lib/utils";
-import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
+import {
+  getPreferences,
+  setPreferences,
+  SPEECH_RATE_PRESETS,
+  isSpeechRatePreset,
+  type AppPreferences,
+} from "@/lib/preferences";
 import { difficultyLabel, type WordDifficulty } from "@/lib/word-meta";
+import { speakEnglish } from "@/lib/speak";
 import { COLOR_PRESETS } from "@/lib/color-presets";
 import { exportBackup, importBackup } from "@/lib/backup";
 import { toast } from "sonner";
@@ -354,6 +361,44 @@ export default function SettingsPage() {
               disabled={prefs == null}
               onCheckedChange={(checked) => void updatePrefs({ autoSpeakEnglish: Boolean(checked) })}
             />
+          </div>
+          <Separator />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 space-y-1">
+                <p className="text-sm font-medium leading-snug">読み上げ速度</p>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  単語・例文の英語読み上げに使います。
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 rounded-lg"
+                disabled={prefs == null}
+                onClick={() => speakEnglish("Please submit the report by Friday.")}
+              >
+                試聴
+              </Button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {SPEECH_RATE_PRESETS.map((p) => {
+                const active = isSpeechRatePreset(prefs?.speechRate ?? 1, p.value);
+                return (
+                  <Button
+                    key={p.value}
+                    type="button"
+                    variant={active ? "default" : "outline"}
+                    className="h-11 rounded-xl text-sm"
+                    disabled={prefs == null}
+                    onClick={() => void updatePrefs({ speechRate: p.value })}
+                  >
+                    {p.label}
+                  </Button>
+                );
+              })}
+            </div>
           </div>
           <Separator />
           <div className="flex items-center justify-between gap-3">

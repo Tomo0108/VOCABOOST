@@ -15,6 +15,7 @@
     "data:ipa": "node scripts/fill-ipa-cmudict.mjs",
     "data:ipa:force": "node scripts/fill-ipa-cmudict.mjs --force",
     "data:upgrade": "node scripts/upgrade-vocab-quality.mjs",
+    "data:relations": "node scripts/enrich-relations.mjs",
     "audit:vocab": "npx tsx scripts/audit-vocab-data.mts"
   },
   "dependencies": {

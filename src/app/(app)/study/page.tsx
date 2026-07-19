@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
 import { HelpHint, HelpSection } from "@/components/app/help-hint";
-import { BookOpen, RotateCcw, Sparkles } from "lucide-react";
+import { BookOpen, NotebookPen, RotateCcw, Sparkles } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getActivityBuckets, type ActivityBuckets } from "@/lib/activity";
 import { countTodaysMistakes } from "@/lib/mistakes";
@@ -407,13 +407,24 @@ export default function StudyPage() {
               className={cn(
                 buttonVariants({ size: "lg", variant: "outline" }),
                 focusRingLink,
-                "col-span-2 h-14 rounded-2xl border-destructive/40 text-destructive shadow-sm transition-colors hover:bg-destructive/5"
+                "col-span-2 h-14 rounded-2xl border-destructive/40 text-destructive shadow-sm transition-colors hover:bg-destructive/5 sm:col-span-1"
               )}
             >
               <RotateCcw className="mr-2 h-4 w-4" aria-hidden />
               今日の間違い {todayMistakes} 語
             </Link>
           ) : null}
+          <Link
+            href="/mistakes"
+            className={cn(
+              buttonVariants({ size: "lg", variant: "outline" }),
+              focusRingLink,
+              "col-span-2 h-14 rounded-2xl shadow-sm transition-colors sm:col-span-1"
+            )}
+          >
+            <NotebookPen className="mr-2 h-4 w-4" aria-hidden />
+            間違いノート
+          </Link>
         </CardContent>
       </Card>
 

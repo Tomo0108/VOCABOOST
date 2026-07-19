@@ -72,6 +72,8 @@ import {
   recordMistake,
   setRetryQueue,
 } from "@/lib/mistakes";
+import { speakEnglish } from "@/lib/speak";
+import { WordRelationsBlock } from "@/components/app/word-relations-block";
 import {
   difficultyLabel,
   filterWordsByDifficulty,
@@ -168,14 +170,6 @@ async function loadSessionWords(
   const order = shuffleWithSeed(all, mixSeed);
   const slice = order.slice(offset, offset + n);
   return orderSessionCandidates(slice, progress);
-}
-
-function speakEnglish(term: string) {
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(term);
-  u.lang = "en-US";
-  window.speechSynthesis.speak(u);
 }
 
 /** 正解1＋他語からの誤答3をランダム順で返す */
@@ -314,6 +308,8 @@ function WordAnswerExplainer({
       ) : (
         <p className="text-sm text-muted-foreground">この単語には例文が登録されていません。</p>
       )}
+
+      <WordRelationsBlock word={word} />
     </div>
   );
 }

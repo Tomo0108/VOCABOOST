@@ -1,0 +1,161 @@
+{
+  "tsl_abide": {
+    "collocations": ["abide by (rules/policy)"]
+  },
+  "tsl_apply": {
+    "collocations": ["apply for (a job)", "apply to (a company)"],
+    "wordFamily": ["apply", "application", "applicant"]
+  },
+  "tsl_attend": {
+    "collocations": ["attend a meeting", "attend a conference"],
+    "wordFamily": ["attend", "attendance", "attendee"]
+  },
+  "tsl_comply": {
+    "collocations": ["comply with (regulations)"],
+    "wordFamily": ["comply", "compliance"]
+  },
+  "tsl_depend": {
+    "collocations": ["depend on"],
+    "wordFamily": ["depend", "dependable", "dependent"]
+  },
+  "tsl_focus": {
+    "collocations": ["focus on"],
+    "wordFamily": ["focus"]
+  },
+  "tsl_invest": {
+    "collocations": ["invest in"],
+    "wordFamily": ["invest", "investment", "investor"]
+  },
+  "tsl_participate": {
+    "collocations": ["participate in"],
+    "wordFamily": ["participate", "participation", "participant"]
+  },
+  "tsl_rely": {
+    "collocations": ["rely on"],
+    "wordFamily": ["rely", "reliable"]
+  },
+  "tsl_responsible": {
+    "collocations": ["be responsible for"],
+    "wordFamily": ["responsible", "responsibility"]
+  },
+  "tsl_submit": {
+    "collocations": ["submit an application", "submit a report"],
+    "wordFamily": ["submit", "submission"]
+  },
+  "tsl_approve": {
+    "collocations": ["approve a proposal"],
+    "wordFamily": ["approve", "approval", "approved"]
+  },
+  "tsl_cancel": {
+    "collocations": ["cancel a reservation", "cancel an order"],
+    "wordFamily": ["cancel", "cancellation"]
+  },
+  "tsl_confirm": {
+    "collocations": ["confirm a reservation", "confirm receipt"],
+    "wordFamily": ["confirm", "confirmation"]
+  },
+  "tsl_negotiate": {
+    "collocations": ["negotiate a contract", "negotiate with"],
+    "wordFamily": ["negotiate", "negotiation"]
+  },
+  "tsl_place": {
+    "collocations": ["place an order"],
+    "wordFamily": ["place"]
+  },
+  "tsl_make": {
+    "collocations": ["make a reservation", "make a decision", "make progress"],
+    "wordFamily": ["make"]
+  },
+  "tsl_take": {
+    "collocations": ["take responsibility", "take part in", "take place"],
+    "wordFamily": ["take"]
+  },
+  "tsl_hold": {
+    "collocations": ["hold a meeting", "hold a position"],
+    "wordFamily": ["hold"]
+  },
+  "tsl_meet": {
+    "collocations": ["meet a deadline", "meet requirements"],
+    "wordFamily": ["meet", "meeting"]
+  },
+  "tsl_reach": {
+    "collocations": ["reach an agreement", "reach a decision"],
+    "wordFamily": ["reach"]
+  },
+  "tsl_sign": {
+    "collocations": ["sign a contract", "sign up for"],
+    "wordFamily": ["sign", "signature"]
+  },
+  "tsl_fill": {
+    "collocations": ["fill out a form", "fill in"],
+    "wordFamily": ["fill"]
+  },
+  "tsl_look": {
+    "collocations": ["look forward to", "look into", "look for"],
+    "wordFamily": ["look"]
+  },
+  "tsl_carry": {
+    "collocations": ["carry out (a plan)"],
+    "wordFamily": ["carry"]
+  },
+  "tsl_come": {
+    "collocations": ["come up with", "come across"],
+    "wordFamily": ["come"]
+  },
+  "tsl_deal": {
+    "collocations": ["deal with"],
+    "wordFamily": ["deal", "dealer"]
+  },
+  "tsl_account": {
+    "collocations": ["take into account", "on account of"],
+    "wordFamily": ["account", "accountant", "accounting"]
+  },
+  "tsl_order": {
+    "collocations": ["place an order", "in order to"],
+    "wordFamily": ["order"]
+  },
+  "tsl_charge": {
+    "collocations": ["charge a fee", "in charge of"],
+    "wordFamily": ["charge"]
+  },
+  "tsl_benefit": {
+    "collocations": ["benefit from", "employee benefits"],
+    "wordFamily": ["benefit", "beneficial"]
+  },
+  "tsl_provide": {
+    "collocations": ["provide with", "provide for"],
+    "wordFamily": ["provide", "provider", "provision"]
+  },
+  "tsl_require": {
+    "collocations": ["require that", "as required"],
+    "wordFamily": ["require", "requirement", "required"]
+  },
+  "tsl_request": {
+    "collocations": ["request a refund", "at the request of"],
+    "wordFamily": ["request"]
+  },
+  "tsl_reserve": {
+    "collocations": ["reserve a room", "reserve a table"],
+    "wordFamily": ["reserve", "reservation"]
+  },
+  "tsl_schedule": {
+    "collocations": ["schedule a meeting", "on schedule"],
+    "wordFamily": ["schedule", "scheduled"]
+  },
+  "tsl_ship": {
+    "collocations": ["ship an order", "shipping costs"],
+    "wordFamily": ["ship", "shipment", "shipping"]
+  },
+  "tsl_supply": {
+    "collocations": ["supply with", "in short supply"],
+    "wordFamily": ["supply", "supplier"]
+  },
+  "tsl_transfer": {
+    "collocations": ["transfer funds", "bank transfer"],
+    "wordFamily": ["transfer"]
+  },
+  "tsl_update": {
+    "collocations": ["update a record", "keep up to date"],
+    "wordFamily": ["update", "updated"]
+  }
+}
