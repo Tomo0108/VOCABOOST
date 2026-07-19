@@ -399,19 +399,6 @@ export default function StudyPage() {
         </CardContent>
       </Card>
 
-      <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-        出題する難易度は{" "}
-        <Link
-          href="/settings"
-          className={cn(focusRingLink, "font-medium text-foreground underline underline-offset-2")}
-        >
-          設定
-        </Link>{" "}
-        の「出題する難易度」から選べます（URL に{" "}
-        <code className="rounded bg-muted/80 px-1 py-0.5 text-[10px]">diff=1,2</code>{" "}
-        のように指定することもできます）。
-      </p>
-
       {/* ==================== 学習記録 ==================== */}
       <Card
         ref={learningRecordCardRef}
