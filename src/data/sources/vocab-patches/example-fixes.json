@@ -1,0 +1,58 @@
+{
+  "accessory": {
+    "exampleEn": "Each phone accessory is listed separately on the invoice.",
+    "exampleJa": "各電話付属品は請求書に個別に記載されている。"
+  },
+  "allergy": {
+    "exampleEn": "Please inform the restaurant if you have a food allergy.",
+    "exampleJa": "食物アレルギーがある場合はレストランに知らせてください。"
+  },
+  "amenity": {
+    "exampleEn": "The hotel amenity fee covers the pool and fitness center.",
+    "exampleJa": "ホテルの設備利用料にはプールとフィットネスセンターが含まれる。"
+  },
+  "certify": {
+    "exampleEn": "The inspector will certify that the building meets all safety codes.",
+    "exampleJa": "検査官が、その建物がすべての安全基準を満たしていることを証明する。"
+  },
+  "classify": {
+    "exampleEn": "Please classify the data by region and product type.",
+    "exampleJa": "データは地域と製品タイプごとに分類してください。"
+  },
+  "dive": {
+    "exampleEn": "Analysts often dive into the sales data before the meeting.",
+    "exampleJa": "アナリストは会議の前によく売上データを詳しく調べる。"
+  },
+  "manipulate": {
+    "exampleEn": "Do not manipulate the sales figures in the quarterly report.",
+    "exampleJa": "四半期報告書の売上数値を操作してはならない。"
+  },
+  "modify": {
+    "exampleEn": "We can modify the proposal based on the client's feedback.",
+    "exampleJa": "クライアントのフィードバックに基づいて提案を修正できる。"
+  },
+  "overcome": {
+    "exampleEn": "The team must overcome several challenges to finish on time.",
+    "exampleJa": "チームは期限に間に合わせるため、いくつかの課題を乗り越えなければならない。"
+  },
+  "revolutionize": {
+    "exampleEn": "New software tools can revolutionize how teams share documents.",
+    "exampleJa": "新しいソフトウェアツールは、チームの文書共有の仕方を一変させ得る。"
+  },
+  "royalty": {
+    "exampleEn": "The author earns a royalty each time the book is sold.",
+    "exampleJa": "著者は本が売れるたびに印税を得る。"
+  },
+  "shrink": {
+    "exampleEn": "Higher costs may shrink the company's profit margin.",
+    "exampleJa": "コスト上昇により会社の利益率が縮小するかもしれない。"
+  },
+  "tally": {
+    "exampleEn": "Please tally the votes before announcing the final results.",
+    "exampleJa": "最終結果を発表する前に票を集計してください。"
+  },
+  "undergo": {
+    "exampleEn": "The company will undergo significant changes next quarter.",
+    "exampleJa": "会社は次の四半期に大きな変革を経験する。"
+  }
+}

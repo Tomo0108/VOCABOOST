@@ -12,7 +12,10 @@
     "data:tsl": "node scripts/build-tsl.mjs",
     "data:wiktionary:ja": "node scripts/enrich-wiktionary-ja.mjs",
     "data:fill-ja": "node scripts/fill-missing-ja-google.mjs",
-    "data:ipa": "node scripts/fill-ipa-cmudict.mjs"
+    "data:ipa": "node scripts/fill-ipa-cmudict.mjs",
+    "data:ipa:force": "node scripts/fill-ipa-cmudict.mjs --force",
+    "data:upgrade": "node scripts/upgrade-vocab-quality.mjs",
+    "audit:vocab": "npx tsx scripts/audit-vocab-data.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",

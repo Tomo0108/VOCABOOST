@@ -47,6 +47,9 @@ npm run dev
 | `npm run data:tsl` | TSL 由来データのビルド |
 | `npm run data:wiktionary:ja` | Wiktionary による日本語補完 |
 | `npm run data:fill-ja` | 欠損和訳の補填（Google 等） |
+| `npm run data:upgrade` | 和訳・例文・場面タグ・難易度・IPA の品質アップグレード |
+| `npm run data:ipa:force` | IPA を CMU 辞書から再計算して上書き |
+| `npm run audit:vocab` | 単語データの品質監査 |
 
 ## デプロイ
 
