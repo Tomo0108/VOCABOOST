@@ -24,7 +24,10 @@ export const WORD_CATEGORY_LABELS: Record<WordCategoryId, string> = {
   other: "その他",
 };
 
-/** TOEIC 場面タグ（データ `tags` と対応） */
+/**
+ * TOEIC 使用ケースタグ（データ `tags` の内部 ID）。
+ * UI には必ず formatSceneTagLabel / SCENE_TAG_LABELS の日本語を出す。
+ */
 export const SCENE_TAG_IDS = [
   "office",
   "meeting",
@@ -43,8 +46,9 @@ export const SCENE_TAG_IDS = [
 
 export type SceneTagId = (typeof SCENE_TAG_IDS)[number];
 
+/** 使用ケースの日本語表示名（内部 ID は英語のまま） */
 export const SCENE_TAG_LABELS: Record<SceneTagId, string> = {
-  office: "オフィス",
+  office: "職場・事務",
   meeting: "会議",
   hr: "人事",
   travel: "出張・交通",
@@ -52,7 +56,7 @@ export const SCENE_TAG_LABELS: Record<SceneTagId, string> = {
   shopping: "販売・接客",
   finance: "財務・契約",
   manufacturing: "製造・物流",
-  it: "IT",
+  it: "情報システム",
   marketing: "広告・広報",
   facilities: "施設",
   healthcare: "健康・安全",
@@ -63,9 +67,20 @@ export function isSceneTagId(s: string): s is SceneTagId {
   return (SCENE_TAG_IDS as readonly string[]).includes(s);
 }
 
+/** 使用ケースの日本語ラベル。未知の値でも英語 ID をそのまま出さない */
+export function formatSceneTagLabel(tag: string): string {
+  if (isSceneTagId(tag)) return SCENE_TAG_LABELS[tag];
+  return "その他";
+}
+
 export function getSceneTags(w: ToeicWord): SceneTagId[] {
   if (!w.tags?.length) return [];
   return w.tags.filter(isSceneTagId);
+}
+
+/** 表示用の日本語使用ケース一覧 */
+export function getSceneTagLabels(w: ToeicWord): string[] {
+  return getSceneTags(w).map((t) => SCENE_TAG_LABELS[t]);
 }
 
 export function isDailyWord(w: ToeicWord): boolean {

@@ -7,9 +7,9 @@ import { splitExampleAroundTerm } from "@/lib/example-svoc";
 import type { ToeicWord } from "@/lib/vocab";
 import {
   difficultyLabel,
+  formatSceneTagLabel,
   getSceneTags,
   getWordDifficulty,
-  SCENE_TAG_LABELS,
 } from "@/lib/word-meta";
 import { PartOfSpeechDisplay } from "@/components/app/part-of-speech-display";
 import { WordRelationsBlock } from "@/components/app/word-relations-block";
@@ -47,7 +47,7 @@ export function WordDetailPanel({
               tag === "daily" && "bg-amber-500/15 text-amber-900 dark:text-amber-100"
             )}
           >
-            {SCENE_TAG_LABELS[tag]}
+            {formatSceneTagLabel(tag)}
           </Badge>
         ))}
       </div>

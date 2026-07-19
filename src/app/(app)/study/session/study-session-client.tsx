@@ -78,9 +78,8 @@ import {
   difficultyLabel,
   filterWordsByDifficulty,
   filterWordsByTrack,
-  getSceneTags,
+  getSceneTagLabels,
   getWordDifficulty,
-  SCENE_TAG_LABELS,
   type WordDifficulty,
 } from "@/lib/word-meta";
 
@@ -906,7 +905,7 @@ export function StudySessionClient() {
 
   const sceneLabels = useMemo(() => {
     if (!current) return [] as string[];
-    return getSceneTags(current).map((t) => SCENE_TAG_LABELS[t]);
+    return getSceneTagLabels(current);
   }, [current]);
 
   const showPosInQuestion = prefs?.showPartOfSpeechInQuestion ?? true;

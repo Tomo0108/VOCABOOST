@@ -17,6 +17,7 @@ import {
   SCENE_TAG_LABELS,
   type SceneTagId,
   getWordCategoryId,
+  getSceneTagLabels,
   filterWordsByTrack,
   filterWordsByScene,
   isSceneTagId,
@@ -140,7 +141,7 @@ export function WordsListClient() {
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-medium text-muted-foreground">場面</p>
+        <p className="text-xs font-medium text-muted-foreground">使用ケース</p>
         <div className="flex flex-wrap gap-2">
           <Link
             href={buildHref({ scene: "all" })}
@@ -152,7 +153,7 @@ export function WordsListClient() {
                 : "border-border/80 bg-card text-muted-foreground hover:bg-muted/60"
             )}
           >
-            全場面
+            すべて
           </Link>
           {SCENE_TAG_IDS.filter((id) => includeDaily || id !== "daily").map((sid) => (
             <Link
@@ -229,6 +230,11 @@ export function WordsListClient() {
                       <p className="line-clamp-1 text-xs text-muted-foreground">
                         {w.meaningJa}
                       </p>
+                      {getSceneTagLabels(w)[0] ? (
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">
+                          {getSceneTagLabels(w).join(" · ")}
+                        </p>
+                      ) : null}
                     </div>
                     <Badge variant="outline" className="shrink-0 text-[10px] font-normal">
                       {WORD_CATEGORY_LABELS[getWordCategoryId(w)]}
