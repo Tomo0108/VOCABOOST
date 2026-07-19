@@ -2,6 +2,12 @@
   "tsl_abide": {
     "collocations": ["abide by (rules/policy)"]
   },
+  "tsl_caf": {
+    "collocations": ["meet at the café", "at the café"]
+  },
+  "tsl_commerce": {
+    "collocations": ["E-commerce", "commerce has grown"]
+  },
   "tsl_apply": {
     "collocations": ["apply for (a job)", "apply to (a company)"],
     "wordFamily": ["apply", "application", "applicant"]
