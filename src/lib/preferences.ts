@@ -15,7 +15,7 @@ export type AppPreferences = {
   compactSchedule: boolean;
   /** 和訳展開時に例文ブロックを出す */
   showExample: boolean;
-  /** 学習セッションで問題（4択）表示時に英語を自動読み上げ（既定はオフ） */
+  /** 学習セッションで英語を自動読み上げ（出題時・回答後。既定はオフ） */
   autoSpeakEnglish: boolean;
   /** 学習セッションの問題文で品詞を表示する */
   showPartOfSpeechInQuestion: boolean;

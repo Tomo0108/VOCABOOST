@@ -430,12 +430,6 @@ function FeedbackCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-5 pt-0">
-        <WordAnswerExplainer
-          word={word}
-          wasCorrect={pending.wasCorrect}
-          pickedMeaning={pending.pickedMeaning}
-          direction={direction}
-        />
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">覚え具合</p>
           <div
@@ -466,6 +460,12 @@ function FeedbackCard({
         >
           次の問題へ
         </Button>
+        <WordAnswerExplainer
+          word={word}
+          wasCorrect={pending.wasCorrect}
+          pickedMeaning={pending.pickedMeaning}
+          direction={direction}
+        />
       </CardContent>
     </>
   );
@@ -507,6 +507,7 @@ export function StudySessionClient() {
   const [difficultyFromUrl, setDifficultyFromUrl] = useState(false);
   const restoredRef = useRef(false);
   const autoSpokenForQuestionRef = useRef<string | null>(null);
+  const autoSpokenForFeedbackRef = useRef<string | null>(null);
   const advancingFeedbackRef = useRef(false);
   const requeueCountsRef = useRef<Record<string, number>>({});
 
@@ -685,6 +686,7 @@ export function StudySessionClient() {
 
   useEffect(() => {
     autoSpokenForQuestionRef.current = null;
+    autoSpokenForFeedbackRef.current = null;
   }, [words]);
 
   useEffect(() => {
@@ -721,6 +723,22 @@ export function StudySessionClient() {
     pendingFeedback,
     prefs?.autoSpeakEnglish,
     quizDirection,
+  ]);
+
+  /** 回答後のフィードバック表示時も自動再生（和→英含む） */
+  useEffect(() => {
+    if (loading || !current || !pendingFeedback) return;
+    if (prefs?.autoSpeakEnglish !== true) return;
+    const key = `${current.id}:${pendingFeedback.pickedMeaning}`;
+    if (autoSpokenForFeedbackRef.current === key) return;
+    autoSpokenForFeedbackRef.current = key;
+    speakEnglish(current.term);
+  }, [
+    loading,
+    current?.id,
+    current?.term,
+    pendingFeedback,
+    prefs?.autoSpeakEnglish,
   ]);
 
   const applyRatingAndAdvance = useCallback(async () => {

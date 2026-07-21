@@ -271,11 +271,11 @@ export default function SettingsPage() {
                 </p>
               </HelpSection>
               <HelpSection
-                title="問題表示時に英語を自動再生"
-                note="和→英では出題中は読み上げません。英→和モードのときだけ有効です。"
+                title="英語の自動再生"
+                note="英→和では出題時と回答後、和→英では回答後のみ読み上げます。"
               >
                 <p>
-                  4択が表示されたタイミングで、英単語を1回だけ読み上げます（既定はオフ）。公共の場や長時間の学習では音量にご注意ください。
+                  英単語を自動で読み上げます（既定はオフ）。英→和では4択表示時と回答後、和→英では答え合わせのタイミングで再生します。公共の場や長時間の学習では音量にご注意ください。
                 </p>
               </HelpSection>
               <HelpSection title="出題する難易度">
@@ -352,7 +352,7 @@ export default function SettingsPage() {
           <Separator />
           <div className="flex items-center justify-between gap-3">
             <span className="min-w-0 flex-1 text-sm font-medium leading-snug">
-              問題表示時に英語を自動再生
+              英語を自動再生
             </span>
             <Switch
               size="lg"
